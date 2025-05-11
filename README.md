@@ -1,6 +1,8 @@
 # Metrical Hierarchies
 
-This repository contains the Lisp code and audio examples from my my bachelor thesis on the parametric design of rhythms using metrical structure. It provides tools for algorithmically determining the metrical weight of beats based on various metrical models.
+This repository contains the Lisp code and audio examples from my bachelor thesis on the parametric design of rhythms using metrical structure. It provides tools for algorithmically determining the metrical weight of beats based on various metrical models.
+
+[Click here](https://leon-focker.github.io/metrical-hierarchies/audio/) to listen to the audio examples in the browser.
 
 ## Install
 
