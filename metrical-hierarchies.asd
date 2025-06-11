@@ -6,6 +6,7 @@
   :license "GNU General Public License v3.0"
   :depends-on ()
   :serial t
+  :pathname "src/"
   :components ((:file "package")
 	       (:file "slippery-utils")
 	       (:file "metrical-hierarchies")))

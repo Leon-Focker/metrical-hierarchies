@@ -48,7 +48,7 @@
   (let* ((nr-of-possible-beats (expt 2 (1- how-many-levels)))
 	 (beat-rational (rational (/ (round (* (mod p 1) nr-of-possible-beats))
 				     nr-of-possible-beats))))
-    (log (denominator beat-rational) 2)))
+    (round (log (denominator beat-rational) 2))))
 
 ;; ** get-metrical-depth
 ;;; Determine the metrical weight of a rational number, corresponding to Fred
@@ -215,7 +215,8 @@
 (rqq-to-indispensability-list '(4 ((2 ((2 (1 1)) (2 (1 1)))) (2 ((2 (1 1)) (2 (1 1)))))))
 => (0 7 3 5 1 6 2 4)
 
-(rqq-to-indispensability-list ')
+(rqq-to-indispensability-list '(4 ((2 ((1 (1 1)) (1 (1 1)) (1 (1 1))))
+				   (2 ((1 (1 1)) (1 (1 1)) (1 (1 1)))))))
 => (0 11 5 9 3 7 1 10 4 8 2 6)
 |#
 (defun rqq-to-indispensability-list (rqq)
