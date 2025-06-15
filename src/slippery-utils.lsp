@@ -74,7 +74,7 @@
                               (cdr ls1)
                               (+ index 1)
                               (+ sum (rationalize (car ls1))))))))
-    (helper (sc::rescale (rationalize selector) 0 1 0 (loop for i in weights sum
+    (helper (rescale (rationalize selector) 0 1 0 (loop for i in weights sum
                                                        (rationalize i)))
             (cdr weights) 0 (rationalize (car weights)))))
 
