@@ -6,7 +6,7 @@ This repository contains the Lisp code and audio examples from my [bachelor thes
 
 ## Install
 
-Clone this repository or download the source code. Then either:
+Clone [this repository](https://github.com/Leon-Focker/metrical-hierarchies) or download the source code. Then either:
 
 **Option 1:** Place the folder in your [Quicklisp local-projects directory](http://blog.quicklisp.org/2018/01/the-quicklisp-local-projects-mechanism.html), for example:
 ```
