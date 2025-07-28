@@ -17,4 +17,6 @@
     #:rqq-to-indispensability-function
     #:visualize))
 
+(pushnew :mh *features*)
+
 ;; EOF package.lsp
