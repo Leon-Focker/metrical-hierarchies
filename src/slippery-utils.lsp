@@ -3,8 +3,8 @@
 ;; * Utilities copied from Michael Edwards' Slippery Chicken
 ;;; Since I only need a select few of Slippery Chicken's functions, I decided  
 ;;; to copy them rather than add SC as a dependency. Some of the following  
-;;; functions were written by me. If no author is specified, assume it was
-;;; written by Michael.
+;;; functions were written by me (Leon Focker). If no author is specified,
+;;; assume it was written by Michael.
 ;;;
 ;;; Code copied on March 25th 2025
 

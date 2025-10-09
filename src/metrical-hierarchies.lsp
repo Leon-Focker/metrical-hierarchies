@@ -1,3 +1,14 @@
+;;; ============================================================================
+;;; File:         metrical-hierarchies.lsp
+;;; Author:       Leon Focker
+;;; Email:        contact@leonfocker.de
+;;; Description:  This is the Lisp code for my bachelor thesis on the parametric
+;;;               design of rhythms using metrical structure. It provides tools
+;;;               for algorithmically determining the metrical weight of beats
+;;;               based on various metrical models.
+;;; Depends on:   package.lsp and slippery-utils.lsp.
+;;; ============================================================================
+
 (in-package :metrical-hierarchies)
 
 ;; * Metrical Hierarchy
