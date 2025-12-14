@@ -10,6 +10,75 @@
 
 ;; ** utilities
 
+;; *** lastx
+
+(defun lastx (env)
+  "lastx returns the last x value in the given envelope.
+   e.g. (lastx '(0 0 20 4 30 5 100 0)) => 100"
+  (unless env
+    (warn "utilities::lastx: env should not be nil."))
+  (let ((len (length env)))
+    (when (oddp len) 
+        (error "utilities::lastx: Wrong number of elements in ~a." env))
+    (when env (first (last env 2)))))
+
+;; *** rescale
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ****f* utilities/rescale
+;;; DATE
+;;; June 8th 2016, Edinburgh
+;;; 
+;;; DESCRIPTION
+;;; Given a value within an original range, return its value withing a new range
+;;; 
+;;; ARGUMENTS
+;;; - the value we want to rescale
+;;; - the original minimum
+;;; - the original maximum
+;;; - the new minimum
+;;; - the new maximum
+;;;
+;;; OPTIONAL ARGUMENTS
+;;; keyword arguments:
+;;; :out-of-range. The function to call when the first argument is not within
+;;; the range of arguments two and three. This would normally be #'error,
+;;; #'warn or NIL. If #'warn or NIL, argument 1 will be hard-limited to the
+;;; original range. Default = #'error
+;;; :type-of-result. Usually this function uses float precision, but by setting
+;;; type-of-result to #'double-float or #'rationalize, it is more precise.
+;;; 
+;;; RETURN VALUE
+;;; The value within the new range (a number)
+;;; 
+;;; EXAMPLE
+#|
+(rescale .5 0 1 0 100)
+==> 50.0
+|#
+;;; SYNOPSIS
+(defun rescale (val min max new-min new-max &optional (out-of-range #'error)
+                                              (type-of-result #'float))
+;;; ****
+  (flet ((oor () ; in case we need to call it on more than one occasion...
+           (when (functionp out-of-range)
+             (funcall out-of-range
+                      "utilities::rescale: first argument (~a) should be ~
+                       within the ~%original range (~a to ~a)" val min max))))
+    (when (or (>= min max)
+              (>= new-min new-max))
+      (error "utilities::rescale: argument 2 (~a) must be < argument 3 (~a) ~
+              ~%and sim. for argument 4 (~a) and 5 (~a)"
+             min max new-min new-max))
+    (unless (and (>= val min)
+                 (<= val max))
+      (oor)
+      (setf val (if (> val max) max min)))
+    (let* ((range1 (funcall type-of-result (- max min)))
+           (range2 (funcall type-of-result (- new-max new-min)))
+           (prop (funcall type-of-result (/ (- val min) range1))))
+      (+ new-min (* prop range2)))))
+
 ;; *** decider
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -77,63 +146,6 @@
     (helper (rescale (rationalize selector) 0 1 0 (loop for i in weights sum
                                                        (rationalize i)))
             (cdr weights) 0 (rationalize (car weights)))))
-
-;; *** rescale
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; ****f* utilities/rescale
-;;; DATE
-;;; June 8th 2016, Edinburgh
-;;; 
-;;; DESCRIPTION
-;;; Given a value within an original range, return its value withing a new range
-;;; 
-;;; ARGUMENTS
-;;; - the value we want to rescale
-;;; - the original minimum
-;;; - the original maximum
-;;; - the new minimum
-;;; - the new maximum
-;;;
-;;; OPTIONAL ARGUMENTS
-;;; keyword arguments:
-;;; :out-of-range. The function to call when the first argument is not within
-;;; the range of arguments two and three. This would normally be #'error,
-;;; #'warn or NIL. If #'warn or NIL, argument 1 will be hard-limited to the
-;;; original range. Default = #'error
-;;; :type-of-result. Usually this function uses float precision, but by setting
-;;; type-of-result to #'double-float or #'rationalize, it is more precise.
-;;; 
-;;; RETURN VALUE
-;;; The value within the new range (a number)
-;;; 
-;;; EXAMPLE
-#|
-(rescale .5 0 1 0 100)
-==> 50.0
-|#
-;;; SYNOPSIS
-(defun rescale (val min max new-min new-max &optional (out-of-range #'error)
-                                              (type-of-result #'float))
-;;; ****
-  (flet ((oor () ; in case we need to call it on more than one occasion...
-           (when (functionp out-of-range)
-             (funcall out-of-range
-                      "utilities::rescale: first argument (~a) should be ~
-                       within the ~%original range (~a to ~a)" val min max))))
-    (when (or (>= min max)
-              (>= new-min new-max))
-      (error "utilities::rescale: argument 2 (~a) must be < argument 3 (~a) ~
-              ~%and sim. for argument 4 (~a) and 5 (~a)"
-             min max new-min new-max))
-    (unless (and (>= val min)
-                 (<= val max))
-      (oor)
-      (setf val (if (> val max) max min)))
-    (let* ((range1 (funcall type-of-result (- max min)))
-           (range2 (funcall type-of-result (- new-max new-min)))
-           (prop (funcall type-of-result (/ (- val min) range1))))
-      (+ new-min (* prop range2)))))
 
 ;; *** flatten
 
@@ -207,6 +219,60 @@
 
 |#
 ;;; SYNOPSIS
+(defun ascending-xs (env &optional (error #'error))
+  (let* ((xs (loop for x in env by #'cddr collect x))
+         (ok (apply #'< xs)))
+    (when (and (not ok) (functionp error))
+      (funcall error "~&x values are not ascending in envelope ~a" env))
+    ok))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun get-interpd-y (point x1 y1 x2 y2 exp)
+  "The arguments are the point we want interpolated,
+   the x,y coordinates of the line the point lies within, and an exponent.  
+   The calculation is how far away point is from x1 divided by how far x2 is 
+   from x1 raised to the exponent exp, multiplied by the difference of y2 and 
+   y1 all added to y1."
+  (float (+ y1 (* (expt (/ (- point x1) 
+                           (- x2 x1)) exp)
+                  (- y2 y1)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun interp-aux (point env scaler exp)
+  (ascending-xs env)
+  (let ((here (loop for i in env by #'cddr and j from 1 do
+    (if (<= point i) (return (+ j j -2))))))
+    ;; rounding in making the new-env with new-lastx can cause the very last
+    ;; event to be just a little bigger than the last x value in the new-env.
+    ;; If this is the case, <here> will be nil so we better deal with this:
+    (unless here 
+      (setq here (- (length env) 2)))
+    (when (zerop here)
+      (setq here 2))
+    ;; MDE Mon Apr  9 13:08:16 2012 -- catch divide by zero error
+    (let ((x1 (nth (- here 2) env))
+          (x2 (nth here env)))
+      ;; MDE Mon May 14 12:26:16 2012 
+      (unless (and (numberp x1) (numberp x2))
+        (error "utilities::interp-aux: y values in envelope must be ~
+                numbers: ~a"
+               env))
+      (if (= x1 x2)
+        (progn
+          (warn "utilities::interp-aux: weird values for interp-aux: ~a in ~a."
+                point env)
+          (nth (1- here) env))
+        (get-interpd-y point 
+                       x1 
+                       (* scaler (nth (- here 1) env))
+                       x2
+                       (* scaler (nth (+ here 1) env))
+                       exp)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defmethod interpolate (point (env list) &key (scaler 1) (exp 1) (warn t))
 ;;; ****
   "e.g. (interpolate 50 '(0 0 100 1) :scaler .5 :exp 2)
