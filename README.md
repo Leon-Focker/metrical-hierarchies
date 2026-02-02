@@ -4,6 +4,8 @@ This repository contains the Lisp code and audio examples from my [bachelor thes
 
 [Click here](https://leon-focker.github.io/metrical-hierarchies/audio/) to listen to the audio examples in the browser.
 
+You may also be interested in [MetreFiddler](https://github.com/Leon-Focker/MetreFiddler), an audio plugin that implements these tools for use with MIDI.
+
 ## Install
 
 Clone [this repository](https://github.com/Leon-Focker/metrical-hierarchies) or download the source code. Then either:
