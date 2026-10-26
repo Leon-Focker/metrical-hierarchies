@@ -3,7 +3,7 @@
   :default-component-class "cl-source-file.lsp"
   :description "A library with several functions for determining the metrical weight of a beat."
   :author "Leon Focker"
-  :license "GNU General Public License v3.0"
+  :license "GNU Affero General Public License v3.0"
   :depends-on ()
   :serial t
   :pathname "src/"
